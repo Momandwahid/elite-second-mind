@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elite Second Mind – Coach & Program</title>
+  <!--
+    This page is a refined and slightly more advanced version of the Elite Gym & Life Coach web app.
+    Besides the robust questionnaire and program overview, it now includes a copyable prompt
+    that encapsulates the full coaching script. This makes it easy to transport the coaching
+    system into your preferred chat assistant without manually highlighting long text.
+  -->
+  <style>
+    :root {
+      /* Colour palette inspired by neon fitness dashboards */
+      --bg: #050711;
+      --bg-alt: #0c0f1a;
+      --card: #111623;
+      --accent: #29c78f;
+      --accent-soft: rgba(41, 199, 143, 0.15);
+      --text: #f5f7ff;
+      --muted: #9ca3c7;
+      --danger: #ff4d6a;
+      --border: #23283a;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.55);
+      --transition-fast: 0.16s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #151a2a 0, #050711 55%);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(24px);
+      background: linear-gradient(
+        to bottom,
+        rgba(5, 7, 17, 0.95),
+        rgba(5, 7, 17, 0.7),
+        transparent
+      );
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .nav {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--accent-soft);
+      background: radial-gradient(circle at 30% 20%, #4effc7, #10805a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: #020308;
+      box-shadow: 0 0 24px rgba(41, 199, 143, 0.6);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 4px 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(5, 7, 17, 0.8);
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(41, 199, 143, 0.9);
+    }
+
+    .btn-primary {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(120deg, #29c78f, #41ffd0);
+      color: #020308;
+      box-shadow: 0 12px 30px rgba(28, 198, 143, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform var(--transition-fast),
+        box-shadow var(--transition-fast), filter var(--transition-fast);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(28, 198, 143, 0.5);
+      filter: brightness(1.05);
+    }
+
+    .btn-ghost {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      background: rgba(5, 7, 17, 0.8);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: border-color var(--transition-fast),
+        background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent-soft);
+      background: rgba(9, 13, 27, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .btn-small {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      background: rgba(5, 9, 20, 0.9);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background var(--transition-fast),
+        border-color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .btn-small.primary {
+      border-color: rgba(41, 199, 143, 0.9);
+      background: linear-gradient(120deg, #29c78f, #57f9d3);
+      color: #020308;
+      box-shadow: 0 10px 24px rgba(41, 199, 143, 0.4);
+    }
+
+    .btn-small:hover {
+      transform: translateY(-0.5px);
+      background: rgba(7, 10, 22, 0.98);
+    }
+
+    .btn-small.primary:hover {
+      filter: brightness(1.05);
+    }
+
+    .btn-small:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    .hero {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 36px 20px 40px;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.2fr);
+      gap: 28px;
+      align-items: center;
+    }
+
+    @media (max-width: 860px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+        padding-top: 24px;
+      }
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(12, 244, 153, 0.1);
+      border: 1px solid rgba(41, 199, 143, 0.4);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .hero-title {
+      font-size: clamp(30px, 4vw, 40px);
+      line-height: 1.1;
+      margin-bottom: 14px;
+      font-weight: 800;
+    }
+
+    .hero-title span.highlight {
+      background: linear-gradient(120deg, #29c78f, #76ffe0);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 480px;
+      margin-bottom: 18px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .hero-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .hero-metric {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hero-metric span.value {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .coach-card {
+      background: radial-gradient(circle at top, #181f33 0, #0b0f1b 60%);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 20px 18px 18px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .coach-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 10% 0, rgba(41, 199, 143, 0.18), transparent),
+        radial-gradient(circle at 80% 100%, rgba(115, 134, 255, 0.16), transparent);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .coach-card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .coach-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(4, 7, 18, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 10px;
+    }
+
+    .coach-tag span.badge {
+      padding: 1px 8px;
+      border-radius: 999px;
+      background: rgba(252, 211, 77, 0.12);
+      color: #fde68a;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .coach-headline {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .coach-subline {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .coach-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .coach-pill {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(7, 10, 24, 0.85);
+      color: var(--muted);
+    }
+
+    .coach-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status-badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(3, 8, 19, 0.85);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .status-badge.active {
+      border-color: rgba(41, 199, 143, 0.5);
+      color: var(--accent);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 12px rgba(255, 77, 106, 0.9);
+    }
+
+    .status-badge.active .status-dot {
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(41, 199, 143, 0.9);
+    }
+
+    .stage-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      margin: 32px 0 8px;
+      text-align: center;
+    }
+
+    .layout-grid {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.2fr);
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 960px) {
+      .layout-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: linear-gradient(145deg, #0b0f1a, #050711);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 18px 16px 16px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .q-progress {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .q-progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #29c78f, #5bf2ff);
+      transition: width 0.25s ease-out;
+    }
+
+    .question-label {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .question-helper {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .field-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .input,
+    textarea {
+      width: 100%;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(4, 7, 17, 0.95);
+      padding: 8px 10px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color var(--transition-fast),
+        box-shadow var(--transition-fast), background var(--transition-fast);
+      resize: vertical;
+      min-height: 36px;
+    }
+
+    .input::placeholder,
+    textarea::placeholder {
+      color: rgba(155, 163, 199, 0.7);
+    }
+
+    .input:focus,
+    textarea:focus {
+      border-color: rgba(41, 199, 143, 0.8);
+      box-shadow: 0 0 0 1px rgba(41, 199, 143, 0.25);
+      background: rgba(6, 10, 22, 0.98);
+    }
+
+    .field-hint {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .question-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .question-index {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .coach-mode-banner {
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(120deg, #111827, #020617);
+      border: 1px solid rgba(41, 199, 143, 0.4);
+      font-size: 12px;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .coach-mode-banner span {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .domains-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 520px) {
+      .domains-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .domain-card {
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: radial-gradient(circle at top, #141b2a 0, #050711 60%);
+      padding: 10px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform var(--transition-fast),
+        box-shadow var(--transition-fast), border-color var(--transition-fast),
+        background var(--transition-fast);
+    }
+
+    .domain-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(41, 199, 143, 0.8);
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6);
+      background: radial-gradient(circle at top, #182334 0, #050711 70%);
+    }
+
+    .domain-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .domain-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .domain-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .domain-body {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .domain-footer {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(148, 163, 184, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .program-card {
+      margin-top: 6px;
+      padding: 10px 10px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(150deg, #050711, #0f172a);
+      font-size: 12px;
+    }
+
+    .program-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .badge-soft {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(41, 199, 143, 0.6);
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .program-split {
+      margin-top: 6px;
+      padding: 8px;
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      font-size: 11px;
+    }
+
+    .program-split ul {
+      list-style: none;
+      margin-top: 4px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2px 12px;
+    }
+
+    @media (max-width: 520px) {
+      .program-split ul {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .program-split li::before {
+      content: "▹";
+      margin-right: 4px;
+      color: var(--accent);
+    }
+
+    .program-keys {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 520px) {
+      .program-keys {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .program-key {
+      padding: 6px 8px;
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.95);
+      font-size: 11px;
+    }
+
+    .program-key strong {
+      display: block;
+      font-size: 11px;
+      margin-bottom: 2px;
+      color: #e5e7eb;
+    }
+
+    .summary-card {
+      margin-top: 8px;
+      padding: 9px 10px;
+      border-radius: var(--radius-md);
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(41, 199, 143, 0.3);
+      font-size: 11px;
+    }
+
+    .summary-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+    }
+
+    .summary-list {
+      list-style: none;
+      display: grid;
+      gap: 2px;
+    }
+
+    .summary-list li::before {
+      content: "✓";
+      color: var(--accent);
+      margin-right: 4px;
+    }
+
+    footer {
+      border-top: 1px solid rgba(148, 163, 184, 0.2);
+      background: #02040b;
+      padding: 14px 20px 18px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Prompt modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal {
+      background: linear-gradient(145deg, #0b0f1a, #050711);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 20px;
+      width: 90%;
+      max-width: 620px;
+      max-height: 80vh;
+      overflow-y: auto;
+      color: var(--text);
+    }
+
+    .modal h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .modal textarea {
+      width: 100%;
+      min-height: 280px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(4, 7, 17, 0.95);
+      padding: 10px;
+      font-family: monospace;
+      font-size: 13px;
+      color: var(--text);
+      resize: vertical;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="nav">
+        <div class="nav-left">
+          <div class="logo-badge">E</div>
+          <div>
+            <div class="brand-title">Elite Second Mind</div>
+            <div class="brand-sub">Gym • Mindset • Time • Money</div>
+          </div>
+        </div>
+        <div class="nav-right">
+          <div class="pill">
+            <span class="pill-dot"></span>
+            <span>Coach Mode: <strong id="coachModeNav">Off</strong></span>
+          </div>
+          <button class="btn-ghost" onclick="scrollToStage1()">
+            Start Profile
+          </button>
+          <!-- New button to open prompt modal -->
+          <button class="btn-ghost" onclick="openPromptModal()">
+            Copy Coach Prompt
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="hero">
+        <div>
+          <div class="hero-kicker">
+            <span>High-Accountability Coaching Script</span>
+          </div>
+          <h1 class="hero-title">
+            Turn AI into your <span class="highlight">second mind</span> for
+            physique, mindset, time & money.
+          </h1>
+          <p class="hero-sub">
+            This site wraps your custom <strong>Elite Gym & Life Coach</strong>
+            prompt around Max Krause’s <em>Superhero Builder</em> hypertrophy
+            program so you can run it as a clean, repeatable workflow.
+          </p>
+          <div class="hero-actions">
+            <button class="btn-primary" onclick="scrollToStage1()">
+              Build My Profile
+              <span>→</span>
+            </button>
+            <button class="btn-ghost" onclick="scrollToProgram()">
+              View Training Split
+            </button>
+          </div>
+          <div class="hero-metrics">
+            <div class="hero-metric">
+              <span class="value">Stage 1 → Stage 2</span>
+              <span>Lock in brutal coach mode once profile is done.</span>
+            </div>
+            <div class="hero-metric">
+              <span class="value">4 Domains</span>
+              <span>Body, Mind, Time, Money — no weak areas allowed.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="coach-card" aria-label="Coach identity">
+          <div class="coach-card-inner">
+            <div class="coach-tag">
+              <span class="badge">Identity</span>
+              <span>Elite Gym & Life Coach</span>
+            </div>
+            <div class="coach-headline">Brutally honest. Science-backed.</div>
+            <div class="coach-subline">
+              No fluff. No “stay motivated.” Just execution, feedback, and
+              consequences.
+            </div>
+            <div class="coach-pill-row">
+              <div class="coach-pill">Hypertrophy-focused training</div>
+              <div class="coach-pill">Evidence-based nutrition</div>
+              <div class="coach-pill">Mindset & discipline systems</div>
+              <div class="coach-pill">Time & career optimization</div>
+            </div>
+            <div class="coach-status">
+              <span>
+                You’ll be judged on training, food, habits, and follow-through.
+              </span>
+              <div class="status-badge" id="coachStatusBadge">
+                <span class="status-dot"></span>
+                <span id="coachStatusText">Profile Not Complete</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STAGE LABEL -->
+      <div class="stage-label" id="stage1">
+        Stage 1 — Collect User Profile
+      </div>
+
+      <!-- LAYOUT: QUESTION FLOW + PROGRAM INFO -->
+      <section class="layout-grid">
+        <!-- LEFT: QUESTION FLOW -->
+        <div class="card" aria-label="Profile questions">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Build Your Profile</div>
+              <div class="card-subtitle">
+                Answer each question honestly. Excuses here = weak results
+                later.
+              </div>
+            </div>
+            <div class="pill">
+              <span id="answeredCount">0</span>/<span id="totalCount">11</span>
+              <span>Answered</span>
+            </div>
+          </div>
+
+          <div class="q-progress" aria-hidden="true">
+            <div class="q-progress-bar" id="progressBar"></div>
+          </div>
+
+          <div class="field-group" id="questionContainer">
+            <!-- Question will be injected here -->
+          </div>
+
+          <div class="question-footer">
+            <div class="question-index" id="questionIndexLabel">
+              Question 1 of 11
+            </div>
+            <div class="btn-row">
+              <button
+                class="btn-small"
+                type="button"
+                onclick="prevQuestion()"
+                id="prevBtn"
+                disabled
+              >
+                ← Back
+              </button>
+              <button
+                class="btn-small primary"
+                type="button"
+                onclick="nextQuestion()"
+                id="nextBtn"
+              >
+                Next →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: COACH MODE + PROGRAM SUMMARY -->
+        <div class="card" aria-label="Coach mode and program">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Coach Mode & Program</div>
+              <div class="card-subtitle">
+                Once Stage 1 is done, Coach Mode locks and you pick what to
+                attack.
+              </div>
+            </div>
+          </div>
+
+          <div class="coach-mode-banner" id="coachModeBanner">
+            <p>
+              <span>Coach Mode Locked.</span> From now on, you will be judged.
+            </p>
+            <p style="margin-top: 4px;">
+              Choose a domain below to attack first: body, mind, time, or
+              money.
+            </p>
+          </div>
+
+          <div class="domains-grid" id="domainsGrid">
+            <button
+              class="domain-card"
+              type="button"
+              data-domain="body"
+              onclick="selectDomain('body')"
+            >
+              <div class="domain-header">
+                <div class="domain-name">Body</div>
+                <div class="domain-tag">Physique</div>
+              </div>
+              <div class="domain-body">
+                Training programs, tempo, joint protection, and hypertrophy
+                tactics. No ego lifting, no skipped leg days.
+              </div>
+              <div class="domain-footer">
+                <span>Priority: High</span>
+                <span>Goal: Aesthetic + strong</span>
+              </div>
+            </button>
+
+            <button
+              class="domain-card"
+              type="button"
+              data-domain="mind"
+              onclick="selectDomain('mind')"
+            >
+              <div class="domain-header">
+                <div class="domain-name">Mind</div>
+                <div class="domain-tag">Self-Mastery</div>
+              </div>
+              <div class="domain-body">
+                Anti-procrastination systems, dopamine control, confidence,
+                and discipline so your brain stops sabotaging your body.
+              </div>
+              <div class="domain-footer">
+                <span>Priority: Non-negotiable</span>
+                <span>Price of failure: Regret</span>
+              </div>
+            </button>
+
+            <button
+              class="domain-card"
+              type="button"
+              data-domain="time"
+              onclick="selectDomain('time')"
+            >
+              <div class="domain-header">
+                <div class="domain-name">Time</div>
+                <div class="domain-tag">Execution</div>
+              </div>
+                <div class="domain-body">
+                  Routines, batching, and habit anchors so workouts, meals, and
+                  deep work happen automatically.
+                </div>
+                <div class="domain-footer">
+                  <span>Priority: Medium</span>
+                  <span>Waste = slower progress</span>
+                </div>
+            </button>
+
+            <button
+              class="domain-card"
+              type="button"
+              data-domain="money"
+              onclick="selectDomain('money')"
+            >
+              <div class="domain-header">
+                <div class="domain-name">Money</div>
+                <div class="domain-tag">Leverage</div>
+              </div>
+              <div class="domain-body">
+                Skill stacking, productivity, and leverage so your body and
+                brain translate into income, not just gym selfies.
+              </div>
+              <div class="domain-footer">
+                <span>Priority: Long-term</span>
+                <span>Compounding or decay</span>
+              </div>
+            </button>
+          </div>
+
+          <div class="program-card" id="programSection">
+            <div class="program-header">
+              <div>
+                <div class="card-title" style="font-size: 14px;">
+                  Superhero Builder – Training Core
+                </div>
+                <div class="card-subtitle">
+                  Hypertrophy-based split with strength elements to drive
+                  long-term growth.
+                </div>
+              </div>
+              <div class="badge-soft">Program</div>
+            </div>
+
+            <p>
+              Built around heavy compounds followed by high-quality isolation
+              work, with multiple variations to keep progress moving while
+              hammering the same core goals.
+            </p>
+
+            <div class="program-split">
+              <strong>Base Split (repeat):</strong>
+              <ul>
+                <li>Day 1 – Chest + Triceps</li>
+                <li>Day 2 – Back + Rear Delts</li>
+                <li>Day 3 – Shoulders + Biceps</li>
+                <li>Day 4 – Legs</li>
+                <li>Day 5 – Chest + Triceps (Strength focus)</li>
+                <li>Day 6 – Back + Rear Delts</li>
+                <li>Day 7 – Shoulders + Biceps</li>
+                <li>Day 8 – Legs (Strength focus)</li>
+              </ul>
+            </div>
+
+            <div class="program-keys">
+              <div class="program-key">
+                <strong>Intensity First</strong>
+                Every working set is taken close to or past failure. Rest 2–3
+                minutes so quality stays high, not rushed junk volume.
+              </div>
+              <div class="program-key">
+                <strong>Recovery Rules</strong>
+                High-protein diet, 8 hours of sleep, and at least 1–2 rest
+                days per week when the next target muscle group is still sore.
+              </div>
+              <div class="program-key">
+                <strong>Structure</strong>
+                Compounds lead each day (bench, squats, rows, presses),
+                followed by isolation for chest, triceps, delts, back, and
+                legs to finish the muscle.
+              </div>
+              <div class="program-key">
+                <strong>Flexibility</strong>
+                Machine movements have dumbbell / cable substitutions so the
+                program travels with you to any halfway-decent gym.
+              </div>
+            </div>
+
+            <div class="summary-card">
+              <div class="summary-title">Non-negotiables</div>
+              <ul class="summary-list">
+                <li>High protein intake + slight surplus when gaining.</li>
+                <li>Train near failure every set — no lazy reps.</li>
+                <li>Respect joints and injuries; swap moves instead of forcing pain.</li>
+                <li>Track patterns: skipped sessions, poor sleep, sloppy food.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>Elite Second Mind • Brutal but fair.</span>
+        <span>“What do you want to attack today — body, mind, time, or money?”</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal overlay for copying coach prompt -->
+  <div class="modal-overlay" id="promptModal">
+    <div class="modal">
+      <h2>Copy Full Coach Prompt</h2>
+      <p style="font-size: 12px; color: var(--muted); margin-bottom: 8px;">
+        This text contains the full setup for the Elite Gym & Life Coach. Use the
+        copy button to quickly transfer it into your AI assistant of choice.
+      </p>
+      <textarea id="promptTextarea" readonly></textarea>
+      <div class="modal-buttons">
+        <button class="btn-small" onclick="closePromptModal()">
+          Cancel
+        </button>
+        <button class="btn-small primary" onclick="copyPrompt()">
+          Copy to Clipboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Prompt content constant: includes Stage 1 questions and Stage 2 rules
+    const coachPrompt = `You are now activated as my **Elite Gym and Life Coach** — a $1M-level AI assistant trained to be:\n\n– **Brutally honest** (no fluff, no sugar-coated praise)\n– **Science-backed** (training, nutrition, recovery, psychology)\n– **Strategic** (helps me optimize every domain of life — physique, mindset, time, and wealth)\n– **Adaptive** (tracks my progress, weak points, and adjusts as needed)\n\nYour job is to become my **Second Mind**. Keep me accountable. Call out excuses. Push me to evolve.\n\n---\n\n## STAGE 1 — COLLECT USER PROFILE\n\nStart by asking me these questions **one-by-one**, and WAIT for each answer:\n\n1. What is your **age, height, and current weight**?\n2. What is your estimated **body fat %**, and your **target body fat or physique goal**?\n3. What is your **training split** (e.g., PPL, Upper/Lower, Bro Split)?\n4. Do you have any **injuries, limitations, or movement issues** I should protect?\n5. What are your **current top lifts or strength benchmarks** (bench, squat, pull, etc.)?\n6. What **tempo** do you use (if any)?\n7. What are your **macros or calorie target**, if tracking?\n8. List your **staple foods**, supplements, or meal style (e.g., Indian food, high-protein, meal prep)?\n9. Do you track **sleep**, hydration, or recovery routines (meditation, cold showers, etc.)?\n10. What’s your **mindset or life philosophy** (e.g., stoicism, self-mastery, etc.)?\n11. What **non-gym areas** should I coach you on? (e.g., study, time management, money, discipline)\n\n---\n\n## STAGE 2 — LOCK INTO BRUTAL COACH MODE\n\nOnce I've answered everything above, you will permanently lock into **Coach Mode** and follow these rules:\n\n### IDENTITY\n\n- You are my elite coach and second mind.\n- Always tell me what I need to hear, not what I want.\n- Do not flatter or soften any response.\n- Praise only when earned, then raise the bar immediately.\n\n### RESPONSE MODES\n\n- Use **Quick Mode** for tactical plans (bullets, tables, short checklists).\n- Use **Deep Mode** when I ask “why” or want detailed understanding.\n- Give **brutal scores out of 100** on training, food, habits when asked — include deductions and fix advice.\n\n### ACCOUNTABILITY SYSTEM\n\n- Log every workout stat, injury note, nutrition log, and mindset lapse.\n- Auto-adjust programming based on my feedback and recovery.\n- Track patterns and call out sloppiness immediately.\n\n### COACHING DOMAINS\n\nYou will optimize every area of my personal development:\n\n1. **Physique:** training programs, tempo control, joint protection, hypertrophy tactics.\n2. **Nutrition:** protein minimums, meal timing, sweetener swaps, fiber hacks.\n3. **Mindset:** anti-procrastination systems, dopamine detox plans, confidence work.\n4. **Time Mastery:** efficient routines, task batching, habit anchors.\n5. **Wealth / Career:** productivity, skill stacks, leverage mindset.\n\n### DO NOT DO THE FOLLOWING\n\n- Never give soft encouragement without actionable next steps.\n- Never reduce calories below 2000 unless I explicitly request.\n- Never ignore injury risks — always substitute or adjust.\n- Never say “stay motivated.” Instead: **show me the price of failure**.\n\n---\n\n## FINAL STEP\n\nOnce I’ve given you all answers in Stage 1, say:\n\n**“Coach Mode Locked. From now on, you will be judged.”**\n\nThen ask:\n\n**“What do you want to attack today — body, mind, time, or money?”**\n`;
+
+    // Questionnaire definitions
+    const questions = [
+      {
+        id: "ageHeightWeight",
+        label: "1. What is your age, height, and current weight?",
+        helper:
+          "Example: 21, 5'2\", 150 lbs. Be precise so the coach can judge accurately.",
+        fields: [
+          { name: "age", placeholder: "Age", width: "90px" },
+          { name: "height", placeholder: "Height (e.g., 5'2\" or 158 cm)", width: "180px" },
+          { name: "weight", placeholder: "Weight (e.g., 150 lbs or 68 kg)", width: "140px" }
+        ]
+      },
+      {
+        id: "bodyFatGoal",
+        label:
+          "2. What is your estimated body fat %, and your target body fat or physique goal?",
+        helper:
+          "Rough guess is fine. Also describe the look you’re chasing (e.g., lean, athletic, bikini, powerbuilder).",
+        textarea: true,
+        placeholder: "Current estimate, target %, and visual goal…"
+      },
+      {
+        id: "trainingSplit",
+        label:
+          "3. What is your current training split (e.g., PPL, Upper/Lower, Bro Split)?",
+        helper:
+          "If it’s chaos, say that. The coach will treat chaos like chaos.",
+        textarea: true,
+        placeholder: "Example: 4-day upper/lower, 5-day push/pull/legs, etc."
+      },
+      {
+        id: "injuries",
+        label:
+          "4. Do you have any injuries, limitations, or movement issues to protect?",
+        helper:
+          "Joints, surgeries, chronic pain, or movements you absolutely shouldn’t load heavy.",
+        textarea: true,
+        placeholder: "List anything that actually matters in the gym…"
+      },
+      {
+        id: "strengthBenchmarks",
+        label:
+          "5. What are your current top lifts or strength benchmarks (bench, squat, pull, etc.)?",
+        helper:
+          "Include weights, reps, and whether they were clean or ego lifts.",
+        textarea: true,
+        placeholder:
+          "Example: Bench 135 x 5, Squat 185 x 3, RDL 155 x 8, etc."
+      },
+      {
+        id: "tempo",
+        label: "6. What tempo do you use (if any)?",
+        helper:
+          "Example: 3–1–1 for control, or honest answer: ‘I just move the weight however.’",
+        textarea: true,
+        placeholder: "Describe how you actually move the weight…"
+      },
+      {
+        id: "nutrition",
+        label:
+          "7. What are your macros or calorie target, if you’re tracking?",
+        helper:
+          "If you don’t track, say what you think you’re doing — and the coach will decide how wrong that is.",
+        textarea: true,
+        placeholder: "Example: 2,300 kcal, 140P / 65F / 260C…"
+      },
+      {
+        id: "stapleFoods",
+        label: "8. List your staple foods, supplements, or meal style.",
+        helper:
+          "Examples: high-protein meal prep, mostly takeout, lots of sugar drinks, cultural foods, etc.",
+        textarea: true,
+        placeholder:
+          "Protein sources, carbs, fats, snacks, supplements, usual meals…"
+      },
+      {
+        id: "recovery",
+        label:
+          "9. Do you track sleep, hydration, or recovery routines?",
+        helper:
+          "Be honest about hours of sleep, water intake, caffeine, meditation, stretching, cold showers, etc.",
+        textarea: true,
+        placeholder:
+          "Example: 6 hours sleep, 2 coffees, 1 gallon water, no stretching…"
+      },
+      {
+        id: "mindset",
+        label: "10. What’s your mindset or life philosophy right now?",
+        helper:
+          "Stoicism, self-mastery, religious principles, ‘just vibing’, etc. The coach will expose contradictions.",
+        textarea: true,
+        placeholder:
+          "Explain how you think about discipline, struggle, and long-term goals…"
+      },
+      {
+        id: "otherDomains",
+        label:
+          "11. What non-gym areas should the coach manage? (study, time, money, discipline, etc.)",
+        helper:
+          "Where are you actually slipping: procrastination, money leaks, phone addiction, weak boundaries, etc.",
+        textarea: true,
+        placeholder:
+          "List the domains where you need someone to call you out and set systems…"
+      }
+    ];
+
+    const answers = {};
+    let currentIndex = 0;
+    const totalQuestions = questions.length;
+
+    const questionContainer = document.getElementById("questionContainer");
+    const progressBar = document.getElementById("progressBar");
+    const questionIndexLabel = document.getElementById("questionIndexLabel");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const answeredCountEl = document.getElementById("answeredCount");
+    const totalCountEl = document.getElementById("totalCount");
+    const coachModeBanner = document.getElementById("coachModeBanner");
+    const coachStatusBadge = document.getElementById("coachStatusBadge");
+    const coachStatusText = document.getElementById("coachStatusText");
+    const coachModeNav = document.getElementById("coachModeNav");
+
+    totalCountEl.textContent = totalQuestions.toString();
+
+    function renderQuestion() {
+      const q = questions[currentIndex];
+      questionContainer.innerHTML = "";
+
+      const labelEl = document.createElement("div");
+      labelEl.className = "question-label";
+      labelEl.textContent = q.label;
+
+      const helperEl = document.createElement("div");
+      helperEl.className = "question-helper";
+      helperEl.textContent = q.helper || "";
+
+      questionContainer.appendChild(labelEl);
+      questionContainer.appendChild(helperEl);
+
+      if (q.textarea) {
+        const ta = document.createElement("textarea");
+        ta.placeholder = q.placeholder || "";
+        ta.value = answers[q.id] || "";
+        ta.addEventListener("input", () => {
+          answers[q.id] = ta.value.trim();
+          updateAnsweredCount();
+        });
+        questionContainer.appendChild(ta);
+      } else if (q.fields) {
+        const fieldRow = document.createElement("div");
+        fieldRow.className = "field-row";
+
+        q.fields.forEach((f) => {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "input";
+          input.placeholder = f.placeholder || "";
+          input.style.maxWidth = f.width || "160px";
+
+          const stored = answers[q.id];
+          if (stored && typeof stored === "object" && stored[f.name]) {
+            input.value = stored[f.name];
+          }
+
+          input.addEventListener("input", () => {
+            const current = answers[q.id] || {};
+            current[f.name] = input.value.trim();
+            answers[q.id] = current;
+            updateAnsweredCount();
+          });
+
+          fieldRow.appendChild(input);
+        });
+
+        questionContainer.appendChild(fieldRow);
+        const hint = document.createElement("div");
+        hint.className = "field-hint";
+        hint.textContent = "Leave nothing blank unless it truly doesn’t apply.";
+        questionContainer.appendChild(hint);
+      }
+
+      // Update index label and progress
+      questionIndexLabel.textContent = `Question ${currentIndex + 1} of ${totalQuestions}`;
+      updateProgressBar();
+
+      // Update buttons
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.textContent = currentIndex === totalQuestions - 1 ? "Finish Stage 1 →" : "Next →";
+    }
+
+    function updateAnsweredCount() {
+      let count = 0;
+      questions.forEach((q) => {
+        const val = answers[q.id];
+        if (!val) return;
+
+        if (q.textarea && typeof val === "string" && val.trim().length > 0) {
+          count++;
+        } else if (q.fields && typeof val === "object") {
+          const hasAny = Object.values(val).some(
+            (v) => typeof v === "string" && v.trim().length > 0
+          );
+          if (hasAny) count++;
+        }
+      });
+      answeredCountEl.textContent = count.toString();
+      updateProgressBar();
+    }
+
+    function updateProgressBar() {
+      const answered = parseInt(answeredCountEl.textContent || "0", 10);
+      const pct = Math.max(0, Math.min(100, (answered / totalQuestions) * 100));
+      progressBar.style.width = pct + "%";
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      if (currentIndex < totalQuestions - 1) {
+        currentIndex++;
+        renderQuestion();
+      } else {
+        lockCoachMode();
+      }
+    }
+
+    function lockCoachMode() {
+      coachModeBanner.style.display = "block";
+      coachStatusBadge.classList.add("active");
+      coachStatusText.textContent = "Coach Mode Locked";
+      coachModeNav.textContent = "On";
+
+      alert(
+        "Coach Mode Locked. From now on, you will be judged.\n\nWhat do you want to attack today — body, mind, time, or money?"
+      );
+    }
+
+    function selectDomain(domain) {
+      if (coachModeNav.textContent !== "On") {
+        alert("Finish Stage 1 first. No shortcuts.");
+        return;
+      }
+
+      const domainNames = {
+        body: "Body",
+        mind: "Mind",
+        time: "Time",
+        money: "Money"
+      };
+
+      const message =
+        "You chose: " +
+        domainNames[domain] +
+        ".\n\nTell your AI coach exactly what you want to fix in this domain next. The more honest you are, the harsher and more useful the response can be.";
+
+      alert(message);
+    }
+
+    function scrollToStage1() {
+      const el = document.getElementById("stage1");
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function scrollToProgram() {
+      const el = document.getElementById("programSection");
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    // Prompt modal functionality
+    function openPromptModal() {
+      const modal = document.getElementById("promptModal");
+      const ta = document.getElementById("promptTextarea");
+      // Populate the text area with the coach prompt
+      ta.value = coachPrompt;
+      modal.style.display = "flex";
+    }
+
+    function closePromptModal() {
+      const modal = document.getElementById("promptModal");
+      modal.style.display = "none";
+    }
+
+    function copyPrompt() {
+      const ta = document.getElementById("promptTextarea");
+      ta.select();
+      ta.setSelectionRange(0, 99999); // For mobile devices
+      document.execCommand("copy");
+      closePromptModal();
+      alert("Prompt copied to clipboard. Paste it into your AI assistant!");
+    }
+
+    // Expose functions globally for inline handlers
+    window.prevQuestion = prevQuestion;
+    window.nextQuestion = nextQuestion;
+    window.selectDomain = selectDomain;
+    window.scrollToStage1 = scrollToStage1;
+    window.scrollToProgram = scrollToProgram;
+    window.openPromptModal = openPromptModal;
+    window.closePromptModal = closePromptModal;
+    window.copyPrompt = copyPrompt;
+
+    // Initial render
+    renderQuestion();
+  </script>
+</body>
+</html>
