@@ -766,6 +766,61 @@
       margin-right: 4px;
     }
 
+    /* Plan card & tracking styles */
+    .plan-card {
+      background: linear-gradient(145deg, #0b0f1a, #050711);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 18px 16px 16px;
+      box-shadow: var(--shadow-soft);
+      display: none;
+      margin-top: 24px;
+    }
+    .plan-section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .plan-progress {
+      font-size: 12px;
+      margin-bottom: 12px;
+      color: var(--muted);
+    }
+    .day-card {
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.8);
+    }
+    .day-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .day-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .exercise-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+    .exercise-row input[type="text"] {
+      flex: 1;
+      min-width: 100px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(4, 7, 17, 0.85);
+      padding: 4px 8px;
+      color: var(--text);
+      font-size: 12px;
+    }
     footer {
       border-top: 1px solid rgba(148, 163, 184, 0.2);
       background: #02040b;
@@ -887,6 +942,9 @@
             </button>
             <button class="btn-ghost" onclick="scrollToProgram()">
               View Training Split
+            </button>
+            <button class="btn-ghost" onclick="scrollToPlan()">
+              View My Plan
             </button>
           </div>
           <div class="hero-metrics">
@@ -1158,6 +1216,40 @@
                 <li>Respect joints and injuries; swap moves instead of forcing pain.</li>
                 <li>Track patterns: skipped sessions, poor sleep, sloppy food.</li>
               </ul>
+            </div>
+          </div>
+
+          <!-- Personalized Plan Section -->
+          <div class="plan-card" id="planSection">
+            <div class="plan-section-title">
+              Personalized Routine &amp; Tracking
+            </div>
+            <div class="plan-progress" id="planProgress"></div>
+            <div id="planDays"></div>
+            <div id="nutritionGuidelines">
+              <h3 style="font-size:14px; margin-top:12px;">Nutrition &amp; Hydration</h3>
+              <p style="font-size:12px; margin-bottom:6px;">
+                Protein intake: 1.1–1.7&nbsp;g per kg body weight; spread across meals
+                (15–30&nbsp;g per meal) and prioritize whole foods like lean meats, fish, eggs,
+                dairy, beans, and tofu. Adjust total calories depending on your goal (slight
+                surplus for muscle gain, slight deficit for fat loss) and focus on complex
+                carbohydrates, healthy fats, and plenty of fruits and vegetables.
+              </p>
+              <p style="font-size:12px;">
+                Hydration: Drink water before, during, and after training. For sessions longer
+                than 60&nbsp;minutes, use a sports drink or water with electrolytes (sodium,
+                potassium, magnesium) to replace what you lose through sweat. Pale urine is a
+                good indicator of adequate hydration.
+              </p>
+            </div>
+            <div id="trackingGuidelines">
+              <h3 style="font-size:14px; margin-top:12px;">Tracking &amp; Accountability</h3>
+              <p style="font-size:12px; margin-bottom:6px;">
+                Use the fields above to log weights or notes for each exercise. The site will
+                save your entries locally so you can resume later. Review your log weekly to
+                evaluate progress and honesty. Be brutally honest—missed workouts or sloppy
+                nutrition are opportunities to improve.
+              </p>
             </div>
           </div>
         </div>
@@ -1472,6 +1564,164 @@
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
+    // Scroll to the personalized plan section. Only available once Coach Mode is on.
+    function scrollToPlan() {
+      if (coachModeNav.textContent !== "On") {
+        alert("Finish Stage 1 first. No shortcuts.");
+        return;
+      }
+      const plan = document.getElementById("planSection");
+      if (!plan) return;
+      // Show the plan section if hidden
+      if (plan.style.display === "none" || plan.style.display === "") {
+        plan.style.display = "block";
+      }
+      updatePlanProgress();
+      plan.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    // Workout plan definition: eight-day cycle with exercises
+    const workoutPlan = [
+      {
+        day: "Day 1 – Chest & Triceps",
+        exercises: [
+          { name: "Incline dumbbell press", sets: "3 × 8–12 reps" },
+          { name: "Flat bench press", sets: "3 × 8–12 reps" },
+          { name: "Dumbbell flyes", sets: "3 × 10–15 reps" },
+          { name: "Dips or triceps push-down", sets: "3 × 8–12 reps" },
+          { name: "Skull crushers", sets: "3 × 10–15 reps" }
+        ]
+      },
+      {
+        day: "Day 2 – Back & Rear Delts",
+        exercises: [
+          { name: "Pull-ups or lat pulldowns", sets: "3 × 8–12 reps" },
+          { name: "Barbell rows", sets: "3 × 8–12 reps" },
+          { name: "Seated cable rows", sets: "3 × 10–15 reps" },
+          { name: "Rear-delt flyes", sets: "3 × 12–15 reps" },
+          { name: "Face pulls", sets: "3 × 12–15 reps" }
+        ]
+      },
+      {
+        day: "Day 3 – Shoulders & Biceps",
+        exercises: [
+          { name: "Overhead press (barbell or dumbbell)", sets: "3 × 8–12 reps" },
+          { name: "Lateral raises", sets: "3 × 12–15 reps" },
+          { name: "Upright rows", sets: "3 × 10–12 reps" },
+          { name: "Dumbbell curls", sets: "3 × 10–12 reps" },
+          { name: "Hammer curls", sets: "3 × 10–12 reps" }
+        ]
+      },
+      {
+        day: "Day 4 – Legs",
+        exercises: [
+          { name: "Back squats", sets: "3 × 8–12 reps" },
+          { name: "Romanian deadlifts", sets: "3 × 8–12 reps" },
+          { name: "Leg press", sets: "3 × 10–15 reps" },
+          { name: "Lunges", sets: "3 × 12–15 reps per leg" },
+          { name: "Calf raises", sets: "3 × 12–20 reps" }
+        ]
+      },
+      {
+        day: "Day 5 – Chest & Triceps (strength focus)",
+        exercises: [
+          { name: "Bench press (heavy)", sets: "5 × 3–5 reps" },
+          { name: "Weighted dips", sets: "4 × 6–8 reps" },
+          { name: "Close-grip bench press", sets: "4 × 6–8 reps" },
+          { name: "Triceps extensions", sets: "3 × 8–12 reps" }
+        ]
+      },
+      {
+        day: "Day 6 – Back & Rear Delts (strength focus)",
+        exercises: [
+          { name: "Barbell rows (heavy)", sets: "5 × 3–5 reps" },
+          { name: "Weighted pull-ups", sets: "4 × 6–8 reps" },
+          { name: "Single-arm dumbbell rows", sets: "4 × 8–10 reps" },
+          { name: "Shrugs", sets: "3 × 10–15 reps" }
+        ]
+      },
+      {
+        day: "Day 7 – Shoulders & Biceps (strength focus)",
+        exercises: [
+          { name: "Overhead press (heavy)", sets: "5 × 3–5 reps" },
+          { name: "Arnold press", sets: "4 × 8–10 reps" },
+          { name: "Preacher curls", sets: "4 × 8–10 reps" },
+          { name: "Concentration curls", sets: "3 × 10–12 reps" }
+        ]
+      },
+      {
+        day: "Day 8 – Legs (strength focus)",
+        exercises: [
+          { name: "Squats (heavy)", sets: "5 × 3–5 reps" },
+          { name: "Romanian deadlifts", sets: "4 × 6–8 reps" },
+          { name: "Leg curls", sets: "4 × 8–10 reps" },
+          { name: "Hip thrusts", sets: "4 × 8–12 reps" }
+        ]
+      }
+    ];
+
+    // Build the plan UI dynamically
+    function buildPlan() {
+      const container = document.getElementById("planDays");
+      if (!container) return;
+      container.innerHTML = "";
+      const storedLogs = JSON.parse(localStorage.getItem("workoutLogs") || "{}");
+      workoutPlan.forEach((dayPlan, dayIndex) => {
+        const dayCard = document.createElement("div");
+        dayCard.className = "day-card";
+        // Header
+        const header = document.createElement("div");
+        header.className = "day-header";
+        const title = document.createElement("div");
+        title.className = "day-title";
+        title.textContent = dayPlan.day;
+        header.appendChild(title);
+        dayCard.appendChild(header);
+        // Exercises
+        dayPlan.exercises.forEach((ex) => {
+          const row = document.createElement("div");
+          row.className = "exercise-row";
+          const label = document.createElement("span");
+          label.textContent = `${ex.name} — ${ex.sets}`;
+          const input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = "Weight / notes";
+          const storedValue =
+            (storedLogs[dayIndex] && storedLogs[dayIndex][ex.name]) || "";
+          input.value = storedValue;
+          input.addEventListener("input", () => {
+            let logs = JSON.parse(localStorage.getItem("workoutLogs") || "{}");
+            if (!logs[dayIndex]) logs[dayIndex] = {};
+            logs[dayIndex][ex.name] = input.value.trim();
+            localStorage.setItem("workoutLogs", JSON.stringify(logs));
+            updatePlanProgress();
+          });
+          row.appendChild(label);
+          row.appendChild(input);
+          dayCard.appendChild(row);
+        });
+        container.appendChild(dayCard);
+      });
+    }
+
+    // Update plan completion progress
+    function updatePlanProgress() {
+      const progressEl = document.getElementById("planProgress");
+      if (!progressEl) return;
+      const logs = JSON.parse(localStorage.getItem("workoutLogs") || "{}");
+      let completed = 0;
+      workoutPlan.forEach((dayPlan, dayIndex) => {
+        const dayLogs = logs[dayIndex];
+        if (dayLogs) {
+          const allLogged = dayPlan.exercises.every(
+            (ex) => dayLogs[ex.name] && dayLogs[ex.name].trim() !== ""
+          );
+          if (allLogged) completed++;
+        }
+      });
+      progressEl.textContent = `${completed}/${workoutPlan.length} days completed in this cycle`;
+    }
+
     // Prompt modal functionality
     function openPromptModal() {
       const modal = document.getElementById("promptModal");
@@ -1507,6 +1757,10 @@
 
     // Initial render
     renderQuestion();
+
+    // Build personalized plan UI on load
+    buildPlan();
+    updatePlanProgress();
   </script>
 </body>
 </html>
